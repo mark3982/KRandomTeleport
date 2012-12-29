@@ -115,7 +115,7 @@ public class P extends JavaPlugin implements Listener {
                 );
 
                 if (location != null) {
-                    player.teleport(location);
+                    teleportPlayer(player, location);
                     player.sendMessage(String.format("[KRandomTeleport] The calculation took %d cycles!", cycles));
                     player.sendMessage("[KRandomTeleport] Hold on you are being teleported!");
                     return;
@@ -128,6 +128,30 @@ public class P extends JavaPlugin implements Listener {
         // no not the sign we are looking for
         return;
     }
+    
+    public void teleportPlayer(Player p, Location l) {
+        Chunk           chunk;
+        Location        nl;
+        int             x, z, y;
+        Block           block;
+        
+        chunk = l.getWorld().getChunkAt(l);
+        
+        x = l.getBlockX() & 0xf;
+        z = l.getBlockZ() & 0xf;
+        y = l.getBlockY();
+        
+        for (y = l.getBlockY(); y > -1; --y) {
+            block = chunk.getBlock(x, y, z);
+            if (!block.isEmpty()) {
+                nl = new Location(l.getWorld(), l.getBlockX(), y, l.getBlockZ());
+                p.sendBlockChange(nl, block.getTypeId(), block.getData());
+                break;
+            }
+        }
+        
+        p.teleport(l);
+    }    
     
     public Location getRandomLocation(World world, int ox, int oz, int min, int max, boolean noWater) {
         int             x, z;
